@@ -1,5 +1,7 @@
 body {
 text-align: center;
+background-image: url('/Assets/USA.png');
+background-repeat: repeat;
 }
 
 h1 {
