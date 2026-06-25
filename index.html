@@ -4,7 +4,22 @@
 <title>The Council</title>
 <link rel="icon" type="image/png" href="/Assets/1.png">
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<link rel="manifest" href="manifest.json"/>
+<script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5PNFS67J72"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5PNFS67J72');
+</script>
 <body>
 <h1>The Council</h1>
 <p>The Council is a great organization that honors greatness, power, and irons</p>
