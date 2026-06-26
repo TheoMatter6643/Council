@@ -23,6 +23,7 @@ h1, p {
 }
 
 .button {
+display: inline-flex;
 padding: 20px 40px;
 background-color: #FAFAFA;
 color: black;
