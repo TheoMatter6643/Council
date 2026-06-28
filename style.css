@@ -31,3 +31,27 @@ text-decoration: none;
 border-radius: 10px;
 font-size: 80px;
 }
+#slot-machine {
+  display: flex;
+  gap: 20px;
+  font-size: 60px;
+  padding: 20px;
+  background: #222;
+  border: 5px solid #555;
+  border-radius: 10px;
+}
+
+.reel {
+  width: 80px;
+  height: 80px;
+  background: #333;
+  border: 3px solid #777;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s;
+}
+
+.spin-animation {
+  transform: rotateX(360deg);
+}
