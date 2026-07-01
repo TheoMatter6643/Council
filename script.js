@@ -49,11 +49,22 @@ async function updateLeaderboard(newScore) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
 
-  board.push({
-    player: name,
-    score: newScore,
-    date: new Date().toLocaleDateString()
-  });
+  let existing = board.find(entry => entry.player === name);
+
+  if (existing) {
+    if (existing.score >= newScore) {
+      displayLeaderboard(board);
+      return;
+    }
+    existing.score = newScore;
+    existing.date = new Date().toLocaleDateString();
+  } else {
+    board.push({
+      player: name,
+      score: newScore,
+      date: new Date().toLocaleDateString()
+    });
+  }
 
   board.sort((a, b) => b.score - a.score);
   board = board.slice(0, 10);
