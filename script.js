@@ -38,9 +38,7 @@ async function getLeaderboard() {
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ leaderboard: board })
   });
 }
@@ -91,7 +89,10 @@ function displayLeaderboard(board) {
 
 const symbols = ["🍒", "🍋", "⭐", "🍉", "🔔"];
 
-document.getElementById("spin").onclick = () => {
+document.getElementById("spin").onclick = async () => {
+  const board = await getLeaderboard();
+  displayLeaderboard(board);
+
   if (coins < COST_PER_SPIN) {
     document.getElementById("result").textContent = "Not enough coins!";
     return;
