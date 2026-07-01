@@ -4,10 +4,11 @@ const JACKPOT_REWARD = 50;
 
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-let coins = parseInt(localStorage.getItem("coins")) || 100;
-let lastRewardDate = localStorage.getItem("lastRewardDate");
+// FIXED COIN LOADING
+let coins = parseInt(localStorage.getItem("coins"));
+if (isNaN(coins)) coins = 100;
 
-// NEW: jackpot counter
+let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
 let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
 let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
 
@@ -23,8 +24,7 @@ function giveDailyReward() {
     document.getElementById("dailyRewardMessage").textContent =
       "Daily Bonus: +" + DAILY_REWARD + " coins!";
   } else {
-    document.getElementById("dailyRewardMessage").textContent =
-      "Daily Bonus already claimed today.";
+    document.getElementById("dailyRewardMessage").textContent = "";
   }
 
   document.getElementById("coins").textContent = "Coins: " + coins;
@@ -33,9 +33,13 @@ function giveDailyReward() {
 giveDailyReward();
 
 async function getLeaderboard() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
-  return data.record.leaderboard;
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    return data.record.leaderboard || [];
+  } catch {
+    return [];
+  }
 }
 
 async function saveLeaderboard(board) {
