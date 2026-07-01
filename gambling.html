@@ -1,30 +1,37 @@
 <!DOCTYPE html>
+<html>
 <head>
 <meta charset="UTF-8">
 <title>The Council</title>
 <link rel="icon" type="image/png" href="Assets/1.png">
 <link href="style.css" rel="stylesheet" type="text/css"/>
 <link rel="manifest" href="manifest.json"/>
+
 <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("service-worker.js");
     }
-  </script>
+</script>
 </head>
-<!-- Google tag (gtag.js) -->
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5PNFS67J72"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-5PNFS67J72');
 </script>
+
 <body>
+
 <h1>Gambling</h1>
 <h3 style="font-size: 60px;">Slot Machine</h3>
+
+<input id="playerName" placeholder="Enter your name" style="font-size: 40px; margin-bottom: 20px;">
+
 <h2 id="coins" style="font-size: 50px;">Coins: 100</h2>
 <h3 id="dailyRewardMessage" style="font-size: 40px;"></h3>
+
 <div id="slot-machine">
   <div class="reel" id="reel1">⭐</div>
   <div class="reel" id="reel2">⭐</div>
@@ -33,17 +40,28 @@
 
 <button id="spin" class="button">Spin</button>
 
-<div id="result" style="font-size: 60px;   padding: 2px 4px;
+<div id="result" style="font-size: 60px; padding: 2px 4px;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);"></div>
+
+<h2 style="font-size: 50px; margin-top: 40px;">Leaderboard</h2>
+<div id="leaderboard" style="font-size: 40px;"></div>
+
 <footer>
-<a href="https://m.youtube.com/@TheCouncilofIron" style="width: 100px; height: auto; display: inline-block; padding: 5px;"><img src="Assets/Youtube.png" style="width: 100%; height: 100%; object-fit: contain; padding: 0px; border-radius: 8px; background-color: transparent;"></a>
-<a href="https://www.tiktok.com/@the.council272?_r=1&_t=ZT-97X7e3E4zPi" style="width: 100px; height: auto; display: inline-block; padding: 5px;"><img src="Assets/TikTok.png" style="width: 100%; height: 100%; object-fit: contain; padding: 0px; border-radius: 8px; background-color: transparent;"></a>
+  <a href="https://m.youtube.com/@TheCouncilofIron" style="width: 100px; height: auto; display: inline-block; padding: 5px;">
+    <img src="Assets/Youtube.png" style="width: 100%; height: 100%; object-fit: contain; padding: 0px; border-radius: 8px; background-color: transparent;">
+  </a>
+  <a href="https://www.tiktok.com/@the.council272?_r=1&_t=ZT-97X7e3E4zPi" style="width: 100px; height: auto; display: inline-block; padding: 5px;">
+    <img src="Assets/TikTok.png" style="width: 100%; height: 100%; object-fit: contain; padding: 0px; border-radius: 8px; background-color: transparent;">
+  </a>
 </footer>
+
 <script>
-  const BIN_ID = "6a4485d5f5f4af5e294af23c"; 
+  const BIN_ID = "6a4485d5f5f4af5e294af23c";
 </script>
+
 <script src="script.js"></script>
+
 </body>
-<html>
+</html>
