@@ -6,6 +6,7 @@ const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 let coins = parseInt(localStorage.getItem("coins")) || 100;
 let lastRewardDate = localStorage.getItem("lastRewardDate");
+let personalBest = parseInt(localStorage.getItem("personalBest")) || 0;
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
@@ -48,23 +49,11 @@ async function updateLeaderboard(newScore) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
 
-  const existing = board.find(entry => entry.player === name);
-
-  if (existing && existing.score >= newScore) {
-    displayLeaderboard(board);
-    return;
-  }
-
-  if (existing) {
-    existing.score = newScore;
-    existing.date = new Date().toLocaleDateString();
-  } else {
-    board.push({
-      player: name,
-      score: newScore,
-      date: new Date().toLocaleDateString()
-    });
-  }
+  board.push({
+    player: name,
+    score: newScore,
+    date: new Date().toLocaleDateString()
+  });
 
   board.sort((a, b) => b.score - a.score);
   board = board.slice(0, 10);
@@ -133,6 +122,10 @@ document.getElementById("spin").onclick = () => {
     localStorage.setItem("coins", coins);
     document.getElementById("coins").textContent = "Coins: " + coins;
 
-    updateLeaderboard(coins);
+    if (coins > personalBest) {
+      personalBest = coins;
+      localStorage.setItem("personalBest", personalBest);
+      updateLeaderboard(coins);
+    }
   }, 300);
 };
