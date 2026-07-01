@@ -1,19 +1,19 @@
+// ===============================
+// CONFIG
+// ===============================
 const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
 const JACKPOT_REWARD = 50;
 
-// Load coins or set default
-let coins = parseInt(localStorage.getItem("coins")) || 100;
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-// Load last reward date
+// ===============================
+// COINS + DAILY REWARD
+// ===============================
+let coins = parseInt(localStorage.getItem("coins")) || 100;
 let lastRewardDate = localStorage.getItem("lastRewardDate");
 
-// Display coins
 document.getElementById("coins").textContent = "Coins: " + coins;
-
-// ---------------------------
-// Daily Reward Logic
-// ---------------------------
 
 function giveDailyReward() {
   const today = new Date().toDateString();
@@ -35,10 +35,69 @@ function giveDailyReward() {
 
 giveDailyReward();
 
-// ---------------------------
-// Slot Machine Logic
-// ---------------------------
+// ===============================
+// PUBLIC JSONBIN LEADERBOARD
+// ===============================
 
+// Load leaderboard
+async function getLeaderboard() {
+  const res = await fetch(API_URL);
+  const data = await res.json();
+  return data.record.leaderboard;
+}
+
+// Save leaderboard
+async function saveLeaderboard(board) {
+  await fetch(API_URL, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ leaderboard: board })
+  });
+}
+
+// Add a new score
+async function updateLeaderboard(newScore) {
+  let board = await getLeaderboard();
+
+  const name =
+    document.getElementById("playerName").value.trim() || "Anonymous";
+
+  board.push({
+    player: name,
+    score: newScore,
+    date: new Date().toLocaleDateString()
+  });
+
+  board.sort((a, b) => b.score - a.score);
+  board = board.slice(0, 10);
+
+  await saveLeaderboard(board);
+  displayLeaderboard(board);
+}
+
+// Display leaderboard
+function displayLeaderboard(board) {
+  const lb = document.getElementById("leaderboard");
+  lb.innerHTML = "";
+
+  board.forEach((entry, index) => {
+    const row = document.createElement("div");
+    row.textContent = `${index + 1}. ${entry.player} — ${entry.score} coins`;
+    lb.appendChild(row);
+  });
+}
+
+// Load leaderboard on page start
+(async () => {
+  const board = await getLeaderboard();
+  displayLeaderboard(board);
+})();
+
+// ===============================
+// SLOT MACHINE
+// ===============================
 const symbols = ["🍒", "🍋", "⭐", "🍉", "🔔"];
 
 document.getElementById("spin").onclick = () => {
@@ -82,5 +141,7 @@ document.getElementById("spin").onclick = () => {
 
     localStorage.setItem("coins", coins);
     document.getElementById("coins").textContent = "Coins: " + coins;
+
+    updateLeaderboard(coins);
   }, 300);
 };
