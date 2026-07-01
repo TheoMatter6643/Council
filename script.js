@@ -6,7 +6,10 @@ const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 let coins = parseInt(localStorage.getItem("coins")) || 100;
 let lastRewardDate = localStorage.getItem("lastRewardDate");
-let personalBest = parseInt(localStorage.getItem("personalBest")) || 0;
+
+// NEW: jackpot counter
+let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
+let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
@@ -43,23 +46,23 @@ async function saveLeaderboard(board) {
   });
 }
 
-async function updateLeaderboard(newScore) {
+async function updateLeaderboard(newJackpotCount) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
 
   let existing = board.find(entry => entry.player === name);
 
   if (existing) {
-    if (existing.score >= newScore) {
+    if (existing.score >= newJackpotCount) {
       displayLeaderboard(board);
       return;
     }
-    existing.score = newScore;
+    existing.score = newJackpotCount;
     existing.date = new Date().toLocaleDateString();
   } else {
     board.push({
       player: name,
-      score: newScore,
+      score: newJackpotCount,
       date: new Date().toLocaleDateString()
     });
   }
@@ -77,7 +80,7 @@ function displayLeaderboard(board) {
 
   board.forEach((entry, index) => {
     const row = document.createElement("div");
-    row.textContent = `${index + 1}. ${entry.player} — ${entry.score} coins`;
+    row.textContent = `${index + 1}. ${entry.player} — ${entry.score} jackpots`;
     lb.appendChild(row);
   });
 }
@@ -125,6 +128,9 @@ document.getElementById("spin").onclick = async () => {
 
     if (r1 === r2 && r2 === r3) {
       coins += JACKPOT_REWARD;
+      jackpots++;
+      localStorage.setItem("jackpots", jackpots);
+
       document.getElementById("result").textContent =
         "JACKPOT! +" + JACKPOT_REWARD + " coins!";
     } else {
@@ -134,10 +140,10 @@ document.getElementById("spin").onclick = async () => {
     localStorage.setItem("coins", coins);
     document.getElementById("coins").textContent = "Coins: " + coins;
 
-    if (coins > personalBest) {
-      personalBest = coins;
-      localStorage.setItem("personalBest", personalBest);
-      updateLeaderboard(coins);
+    if (jackpots > personalBestJackpots) {
+      personalBestJackpots = jackpots;
+      localStorage.setItem("personalBestJackpots", personalBestJackpots);
+      updateLeaderboard(jackpots);
     }
   }, 300);
 };
