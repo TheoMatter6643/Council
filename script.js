@@ -1,37 +1,17 @@
-const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
-const JACKPOT_REWARD = 50;
-
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-// FIXED COIN LOADING
+// Load coins safely
 let coins = parseInt(localStorage.getItem("coins"));
 if (isNaN(coins)) coins = 100;
 
-let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
+// Jackpot counters
 let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
 let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
-function giveDailyReward() {
-  const today = new Date().toDateString();
-
-  if (lastRewardDate !== today) {
-    coins += DAILY_REWARD;
-    localStorage.setItem("coins", coins);
-    localStorage.setItem("lastRewardDate", today);
-    document.getElementById("dailyRewardMessage").textContent =
-      "Daily Bonus: +" + DAILY_REWARD + " coins!";
-  } else {
-    document.getElementById("dailyRewardMessage").textContent = "";
-  }
-
-  document.getElementById("coins").textContent = "Coins: " + coins;
-}
-
-giveDailyReward();
-
+// Load leaderboard
 async function getLeaderboard() {
   try {
     const res = await fetch(API_URL);
@@ -42,6 +22,7 @@ async function getLeaderboard() {
   }
 }
 
+// Save leaderboard
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
     method: "PUT",
@@ -50,6 +31,7 @@ async function saveLeaderboard(board) {
   });
 }
 
+// Update leaderboard only if new personal best
 async function updateLeaderboard(newJackpotCount) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
@@ -78,6 +60,7 @@ async function updateLeaderboard(newJackpotCount) {
   displayLeaderboard(board);
 }
 
+// Display leaderboard
 function displayLeaderboard(board) {
   const lb = document.getElementById("leaderboard");
   lb.innerHTML = "";
@@ -89,17 +72,17 @@ function displayLeaderboard(board) {
   });
 }
 
+// Load leaderboard on startup
 (async () => {
   const board = await getLeaderboard();
   displayLeaderboard(board);
 })();
 
-const symbols = ["🍒", "🍋", "⭐", "🍉", "🔔"];
+// Slot machine symbols
+const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
 
-document.getElementById("spin").onclick = async () => {
-  const board = await getLeaderboard();
-  displayLeaderboard(board);
-
+// Spin button
+document.getElementById("spin").onclick = () => {
   if (coins < COST_PER_SPIN) {
     document.getElementById("result").textContent = "Not enough coins!";
     return;
@@ -130,20 +113,64 @@ document.getElementById("spin").onclick = async () => {
     reel2.classList.remove("spin-animation");
     reel3.classList.remove("spin-animation");
 
-    if (r1 === r2 && r2 === r3) {
-      coins += JACKPOT_REWARD;
-      jackpots++;
-      localStorage.setItem("jackpots", jackpots);
+    let reward = 0;
+    let isJackpot = false;
 
-      document.getElementById("result").textContent =
-        "JACKPOT! +" + JACKPOT_REWARD + " coins!";
-    } else {
-      document.getElementById("result").textContent = "Try again!";
+    const fruits = ["🍒", "🍋", "🍉"];
+
+    // 3 stars = 100 jackpot
+    if (r1 === "⭐" && r2 === "⭐" && r3 === "⭐") {
+      reward = 100;
+      isJackpot = true;
     }
 
+    // 3 of same fruit = 50 jackpot
+    else if (fruits.includes(r1) && r1 === r2 && r2 === r3) {
+      reward = 50;
+      isJackpot = true;
+    }
+
+    // 3 bells = 50 jackpot
+    else if (r1 === "🔔" && r2 === "🔔" && r3 === "🔔") {
+      reward = 50;
+      isJackpot = true;
+    }
+
+    // 3 of anything else (not fruit, not stars) = 50 jackpot
+    else if (r1 === r2 && r2 === r3) {
+      reward = 50;
+      isJackpot = true;
+    }
+
+    // 3 different fruits = 20
+    else if (
+      fruits.includes(r1) &&
+      fruits.includes(r2) &&
+      fruits.includes(r3) &&
+      r1 !== r2 &&
+      r1 !== r3 &&
+      r2 !== r3
+    ) {
+      reward = 20;
+    }
+
+    // Apply reward
+    coins += reward;
     localStorage.setItem("coins", coins);
     document.getElementById("coins").textContent = "Coins: " + coins;
 
+    // Jackpot handling
+    if (isJackpot) {
+      jackpots++;
+      localStorage.setItem("jackpots", jackpots);
+      document.getElementById("result").textContent =
+        `JACKPOT! +${reward} coins!`;
+    } else {
+      document.getElementById("result").textContent =
+        reward > 0 ? `You win +${reward} coins!` : "Try again!";
+    }
+
+    // Update leaderboard only if new personal best
     if (jackpots > personalBestJackpots) {
       personalBestJackpots = jackpots;
       localStorage.setItem("personalBestJackpots", personalBestJackpots);
