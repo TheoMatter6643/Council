@@ -1,43 +1,24 @@
-// =========================
-// CONFIG
-// =========================
 const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
 
-// Your JSONBin ID (STRING!)
 const BIN_ID = "6a46bcb9f5f4af5e2955efa1";
-
-// Correct JSONBin URL using /latest
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
-
-// =========================
-// LOCAL STORAGE LOAD
-// =========================
 let coins = parseInt(localStorage.getItem("coins"));
 if (isNaN(coins)) coins = 100;
 
 let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
 let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
-
 let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
-
-// =========================
-// SECRET MONEY BUTTON
-// =========================
 document.getElementById("Money").onclick = () => {
   coins += 10000;
   localStorage.setItem("coins", coins);
   document.getElementById("coins").textContent = "Coins: " + coins;
 };
 
-
-// =========================
-// DAILY BONUS
-// =========================
 function giveDailyReward() {
   const today = new Date().toISOString().split("T")[0];
 
@@ -46,9 +27,7 @@ function giveDailyReward() {
     localStorage.setItem("coins", coins);
     localStorage.setItem("lastRewardDate", today);
     lastRewardDate = today;
-
-    document.getElementById("dailyRewardMessage").textContent =
-      "Daily Bonus: +" + DAILY_REWARD + " coins!";
+    document.getElementById("dailyRewardMessage").textContent = "Daily Bonus: +" + DAILY_REWARD + " coins!";
   } else {
     document.getElementById("dailyRewardMessage").textContent = "";
   }
@@ -58,10 +37,6 @@ function giveDailyReward() {
 
 giveDailyReward();
 
-
-// =========================
-// JSONBIN — GET LEADERBOARD
-// =========================
 async function getLeaderboard() {
   try {
     const res = await fetch(API_URL);
@@ -72,10 +47,6 @@ async function getLeaderboard() {
   }
 }
 
-
-// =========================
-// JSONBIN — SAVE LEADERBOARD (PATCH)
-// =========================
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
     method: "PATCH",
@@ -84,10 +55,6 @@ async function saveLeaderboard(board) {
   });
 }
 
-
-// =========================
-// UPDATE LEADERBOARD
-// =========================
 async function updateLeaderboard(newJackpotCount) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
@@ -116,10 +83,6 @@ async function updateLeaderboard(newJackpotCount) {
   displayLeaderboard(board);
 }
 
-
-// =========================
-// DISPLAY LEADERBOARD
-// =========================
 function displayLeaderboard(board) {
   const lb = document.getElementById("leaderboard");
   lb.innerHTML = "";
@@ -131,19 +94,11 @@ function displayLeaderboard(board) {
   });
 }
 
-
-// =========================
-// LOAD LEADERBOARD ON START
-// =========================
 (async () => {
   const board = await getLeaderboard();
   displayLeaderboard(board);
 })();
 
-
-// =========================
-// SLOT MACHINE LOGIC
-// =========================
 const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
 
 document.getElementById("spin").onclick = () => {
@@ -212,8 +167,7 @@ document.getElementById("spin").onclick = () => {
     if (isJackpot) {
       jackpots++;
       localStorage.setItem("jackpots", jackpots);
-      document.getElementById("result").textContent =
-        `JACKPOT! +${reward} coins!`;
+      document.getElementById("result").textContent = `JACKPOT! +${reward} coins!`;
     } else {
       document.getElementById("result").textContent =
         reward > 0 ? `You win +${reward} coins!` : "Try again!";
