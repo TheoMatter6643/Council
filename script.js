@@ -1,7 +1,8 @@
 const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
 
-const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+// IMPORTANT: Use /latest so PATCH updates the JSON instead of replacing metadata
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 
 // Load coins safely
 let coins = parseInt(localStorage.getItem("coins"));
@@ -16,8 +17,9 @@ let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
+// SECRET MONEY BUTTON
 document.getElementById("Money").onclick = () => {
-  coins += 10000; // amount you want
+  coins += 10000;
   localStorage.setItem("coins", coins);
   document.getElementById("coins").textContent = "Coins: " + coins;
 };
@@ -54,7 +56,7 @@ async function getLeaderboard() {
   }
 }
 
-// SAVE LEADERBOARD
+// SAVE LEADERBOARD (PATCH so it does NOT replace entire bin)
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
     method: "PATCH",
