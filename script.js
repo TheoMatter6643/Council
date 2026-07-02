@@ -1,17 +1,43 @@
+const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
+
 const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 // Load coins safely
 let coins = parseInt(localStorage.getItem("coins"));
 if (isNaN(coins)) coins = 100;
 
-// Jackpot counters
+// Load jackpots
 let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
 let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
 
+// Load last reward date
+let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
+
 document.getElementById("coins").textContent = "Coins: " + coins;
 
-// Load leaderboard
+// DAILY BONUS (fixed)
+function giveDailyReward() {
+  const today = new Date().toISOString().split("T")[0];
+
+  if (lastRewardDate !== today) {
+    coins += DAILY_REWARD;
+    localStorage.setItem("coins", coins);
+    localStorage.setItem("lastRewardDate", today);
+    lastRewardDate = today;
+
+    document.getElementById("dailyRewardMessage").textContent =
+      "Daily Bonus: +" + DAILY_REWARD + " coins!";
+  } else {
+    document.getElementById("dailyRewardMessage").textContent = "";
+  }
+
+  document.getElementById("coins").textContent = "Coins: " + coins;
+}
+
+giveDailyReward();
+
+// GET LEADERBOARD
 async function getLeaderboard() {
   try {
     const res = await fetch(API_URL);
@@ -22,7 +48,7 @@ async function getLeaderboard() {
   }
 }
 
-// Save leaderboard
+// SAVE LEADERBOARD
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
     method: "PUT",
@@ -31,7 +57,7 @@ async function saveLeaderboard(board) {
   });
 }
 
-// Update leaderboard only if new personal best
+// UPDATE LEADERBOARD
 async function updateLeaderboard(newJackpotCount) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
@@ -60,7 +86,7 @@ async function updateLeaderboard(newJackpotCount) {
   displayLeaderboard(board);
 }
 
-// Display leaderboard
+// DISPLAY LEADERBOARD
 function displayLeaderboard(board) {
   const lb = document.getElementById("leaderboard");
   lb.innerHTML = "";
@@ -72,16 +98,16 @@ function displayLeaderboard(board) {
   });
 }
 
-// Load leaderboard on startup
+// LOAD LEADERBOARD ON START
 (async () => {
   const board = await getLeaderboard();
   displayLeaderboard(board);
 })();
 
-// Slot machine symbols
+// SLOT MACHINE SYMBOLS
 const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
 
-// Spin button
+// SPIN BUTTON
 document.getElementById("spin").onclick = () => {
   if (coins < COST_PER_SPIN) {
     document.getElementById("result").textContent = "Not enough coins!";
@@ -124,7 +150,7 @@ document.getElementById("spin").onclick = () => {
       isJackpot = true;
     }
 
-    // 3 of same fruit = 50 jackpot
+    // 3 same fruit = 50 jackpot
     else if (fruits.includes(r1) && r1 === r2 && r2 === r3) {
       reward = 50;
       isJackpot = true;
@@ -136,7 +162,7 @@ document.getElementById("spin").onclick = () => {
       isJackpot = true;
     }
 
-    // 3 of anything else (not fruit, not stars) = 50 jackpot
+    // 3 of anything else = 50 jackpot
     else if (r1 === r2 && r2 === r3) {
       reward = 50;
       isJackpot = true;
