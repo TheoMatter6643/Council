@@ -1,29 +1,43 @@
+// =========================
+// CONFIG
+// =========================
 const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
 
-// IMPORTANT: Use /latest so PATCH updates the JSON instead of replacing metadata
-const API_URL = `https://api.jsonbin.io/v3/b/${"6a46bcb9f5f4af5e2955efa1"}/latest`;
+// Your JSONBin ID (STRING!)
+const BIN_ID = "6a46bcb9f5f4af5e2955efa1";
 
-// Load coins safely
+// Correct JSONBin URL using /latest
+const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+
+
+// =========================
+// LOCAL STORAGE LOAD
+// =========================
 let coins = parseInt(localStorage.getItem("coins"));
 if (isNaN(coins)) coins = 100;
 
 let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
 let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
 
-// Load last reward date
 let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
+
+// =========================
 // SECRET MONEY BUTTON
+// =========================
 document.getElementById("Money").onclick = () => {
   coins += 10000;
   localStorage.setItem("coins", coins);
   document.getElementById("coins").textContent = "Coins: " + coins;
 };
 
-// DAILY BONUS (fixed)
+
+// =========================
+// DAILY BONUS
+// =========================
 function giveDailyReward() {
   const today = new Date().toISOString().split("T")[0];
 
@@ -44,7 +58,10 @@ function giveDailyReward() {
 
 giveDailyReward();
 
-// GET LEADERBOARD
+
+// =========================
+// JSONBIN — GET LEADERBOARD
+// =========================
 async function getLeaderboard() {
   try {
     const res = await fetch(API_URL);
@@ -55,7 +72,10 @@ async function getLeaderboard() {
   }
 }
 
-// SAVE LEADERBOARD (PATCH so it does NOT replace entire bin)
+
+// =========================
+// JSONBIN — SAVE LEADERBOARD (PATCH)
+// =========================
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
     method: "PATCH",
@@ -64,7 +84,10 @@ async function saveLeaderboard(board) {
   });
 }
 
+
+// =========================
 // UPDATE LEADERBOARD
+// =========================
 async function updateLeaderboard(newJackpotCount) {
   let board = await getLeaderboard();
   const name = document.getElementById("playerName").value.trim() || "Anonymous";
@@ -93,7 +116,10 @@ async function updateLeaderboard(newJackpotCount) {
   displayLeaderboard(board);
 }
 
+
+// =========================
 // DISPLAY LEADERBOARD
+// =========================
 function displayLeaderboard(board) {
   const lb = document.getElementById("leaderboard");
   lb.innerHTML = "";
@@ -105,16 +131,21 @@ function displayLeaderboard(board) {
   });
 }
 
+
+// =========================
 // LOAD LEADERBOARD ON START
+// =========================
 (async () => {
   const board = await getLeaderboard();
   displayLeaderboard(board);
 })();
 
-// SLOT MACHINE SYMBOLS
+
+// =========================
+// SLOT MACHINE LOGIC
+// =========================
 const symbols = ["🍒", "🍋", "🍉", "⭐", "🔔"];
 
-// SPIN BUTTON
 document.getElementById("spin").onclick = () => {
   if (coins < COST_PER_SPIN) {
     document.getElementById("result").textContent = "Not enough coins!";
@@ -151,32 +182,19 @@ document.getElementById("spin").onclick = () => {
 
     const fruits = ["🍒", "🍋", "🍉"];
 
-    // 3 stars = 100 jackpot
     if (r1 === "⭐" && r2 === "⭐" && r3 === "⭐") {
       reward = 100;
       isJackpot = true;
-    }
-
-    // 3 same fruit = 50 jackpot
-    else if (fruits.includes(r1) && r1 === r2 && r2 === r3) {
+    } else if (fruits.includes(r1) && r1 === r2 && r2 === r3) {
       reward = 50;
       isJackpot = true;
-    }
-
-    // 3 bells = 50 jackpot
-    else if (r1 === "🔔" && r2 === "🔔" && r3 === "🔔") {
+    } else if (r1 === "🔔" && r2 === "🔔" && r3 === "🔔") {
       reward = 50;
       isJackpot = true;
-    }
-
-    // 3 of anything else = 50 jackpot
-    else if (r1 === r2 && r2 === r3) {
+    } else if (r1 === r2 && r2 === r3) {
       reward = 50;
       isJackpot = true;
-    }
-
-    // 3 different fruits = 20
-    else if (
+    } else if (
       fruits.includes(r1) &&
       fruits.includes(r2) &&
       fruits.includes(r3) &&
@@ -187,12 +205,10 @@ document.getElementById("spin").onclick = () => {
       reward = 20;
     }
 
-    // Apply reward
     coins += reward;
     localStorage.setItem("coins", coins);
     document.getElementById("coins").textContent = "Coins: " + coins;
 
-    // Jackpot handling
     if (isJackpot) {
       jackpots++;
       localStorage.setItem("jackpots", jackpots);
@@ -202,7 +218,7 @@ document.getElementById("spin").onclick = () => {
       document.getElementById("result").textContent =
         reward > 0 ? `You win +${reward} coins!` : "Try again!";
     }
-    
+
     if (jackpots > personalBestJackpots) {
       personalBestJackpots = jackpots;
       localStorage.setItem("personalBestJackpots", personalBestJackpots);
