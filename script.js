@@ -57,7 +57,7 @@ async function getLeaderboard() {
 // SAVE LEADERBOARD
 async function saveLeaderboard(board) {
   await fetch(API_URL, {
-    method: "PUT",
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ leaderboard: board })
   });
