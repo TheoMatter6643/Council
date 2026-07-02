@@ -16,6 +16,12 @@ let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
+document.getElementById("secretTikTok").onclick = () => {
+  coins += 10000; // amount you want
+  localStorage.setItem("coins", coins);
+  document.getElementById("coins").textContent = "Coins: " + coins;
+};
+
 // DAILY BONUS (fixed)
 function giveDailyReward() {
   const today = new Date().toISOString().split("T")[0];
