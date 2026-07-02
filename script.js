@@ -16,7 +16,7 @@ let lastRewardDate = localStorage.getItem("lastRewardDate") || "";
 
 document.getElementById("coins").textContent = "Coins: " + coins;
 
-document.getElementById("secretTikTok").onclick = () => {
+document.getElementById("Money").onclick = () => {
   coins += 10000; // amount you want
   localStorage.setItem("coins", coins);
   document.getElementById("coins").textContent = "Coins: " + coins;
