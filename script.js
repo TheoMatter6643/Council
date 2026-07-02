@@ -2,7 +2,7 @@ const DAILY_REWARD = 200;
 const COST_PER_SPIN = 10;
 
 // IMPORTANT: Use /latest so PATCH updates the JSON instead of replacing metadata
-const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+const API_URL = `https://api.jsonbin.io/v3/b/${6a46bcb9f5f4af5e2955efa1}/latest`;
 
 // Load coins safely
 let coins = parseInt(localStorage.getItem("coins"));
