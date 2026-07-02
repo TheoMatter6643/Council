@@ -8,7 +8,6 @@ const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
 let coins = parseInt(localStorage.getItem("coins"));
 if (isNaN(coins)) coins = 100;
 
-// Load jackpots
 let jackpots = parseInt(localStorage.getItem("jackpots")) || 0;
 let personalBestJackpots = parseInt(localStorage.getItem("personalBestJackpots")) || 0;
 
