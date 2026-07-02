@@ -203,8 +203,7 @@ document.getElementById("spin").onclick = () => {
       document.getElementById("result").textContent =
         reward > 0 ? `You win +${reward} coins!` : "Try again!";
     }
-
-    // Update leaderboard only if new personal best
+    
     if (jackpots > personalBestJackpots) {
       personalBestJackpots = jackpots;
       localStorage.setItem("personalBestJackpots", personalBestJackpots);
