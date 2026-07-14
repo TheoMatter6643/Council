@@ -190,6 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // BLACKJACK
 // =========================
 
+const bjBetInput = document.getElementById("bjBet");
 const bjStart = document.getElementById("bjStart");
 const bjHit = document.getElementById("bjHit");
 const bjStand = document.getElementById("bjStand");
@@ -202,6 +203,7 @@ let bjDeck = [];
 let bjPlayerHand = [];
 let bjDealerHand = [];
 let bjActive = false;
+let bjBet = 0;
 
 function bjNewDeck() {
   const cards = [];
@@ -244,13 +246,23 @@ function bjRender() {
   bjDealer.textContent = "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
 }
 
+function bjIsBlackjack(hand) {
+  return hand.length === 2 && bjValue(hand) === 21;
+}
+
 bjStart.onclick = () => {
-  if (coins < 10) {
+  bjBet = parseInt(bjBetInput.value);
+  if (isNaN(bjBet) || bjBet < 1) {
+    bjStatus.textContent = "Invalid bet.";
+    return;
+  }
+
+  if (coins < bjBet) {
     bjStatus.textContent = "Not enough coins.";
     return;
   }
 
-  coins -= 10;
+  coins -= bjBet;
   localStorage.setItem("coins", coins);
   document.getElementById("coins").textContent = "Coins: " + coins;
 
@@ -261,6 +273,23 @@ bjStart.onclick = () => {
   bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
 
   bjRender();
+
+  // Player blackjack check
+  if (bjIsBlackjack(bjPlayerHand)) {
+    bjActive = false;
+
+    // Dealer also blackjack?
+    if (bjIsBlackjack(bjDealerHand)) {
+      bjStatus.textContent = "Both blackjack! Push.";
+      coins += bjBet;
+    } else {
+      bjStatus.textContent = "Blackjack! You win 3:2.";
+      coins += Math.floor(bjBet * 2.5);
+    }
+
+    localStorage.setItem("coins", coins);
+    document.getElementById("coins").textContent = "Coins: " + coins;
+  }
 };
 
 bjHit.onclick = () => {
@@ -287,12 +316,15 @@ bjStand.onclick = () => {
   const p = bjValue(bjPlayerHand);
   const d = bjValue(bjDealerHand);
 
-  if (d > 21 || p > d) {
-    bjStatus.textContent = "You win +20 coins!";
-    coins += 20;
+  if (d > 21) {
+    bjStatus.textContent = "Dealer busts! You win.";
+    coins += bjBet * 2;
+  } else if (p > d) {
+    bjStatus.textContent = "You win!";
+    coins += bjBet * 2;
   } else if (p === d) {
-    bjStatus.textContent = "Push. +10 coins refunded.";
-    coins += 10;
+    bjStatus.textContent = "Push. Bet refunded.";
+    coins += bjBet;
   } else {
     bjStatus.textContent = "Dealer wins.";
   }
