@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 });
 // =========================
-// BLACKJACK
+// BLACKJACK (FIXED)
 // =========================
 
 const bjBetInput = document.getElementById("bjBet");
@@ -210,9 +210,7 @@ function bjNewDeck() {
   const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
   const suits = ["♠","♥","♦","♣"];
   for (let v of values) {
-    for (let s of suits) {
-      cards.push(v + s);
-    }
+    for (let s of suits) cards.push(v + s);
   }
   return cards.sort(() => Math.random() - 0.5);
 }
@@ -223,14 +221,9 @@ function bjValue(hand) {
 
   for (let c of hand) {
     let v = c.slice(0, -1);
-    if (v === "A") {
-      total += 11;
-      aces++;
-    } else if (["J","Q","K"].includes(v)) {
-      total += 10;
-    } else {
-      total += parseInt(v);
-    }
+    if (v === "A") { total += 11; aces++; }
+    else if (["J","Q","K"].includes(v)) total += 10;
+    else total += parseInt(v);
   }
 
   while (total > 21 && aces > 0) {
@@ -241,17 +234,18 @@ function bjValue(hand) {
   return total;
 }
 
+function bjIsBlackjack(hand) {
+  return hand.length === 2 && bjValue(hand) === 21;
+}
+
 function bjRender() {
   bjPlayer.textContent = "Player: " + bjPlayerHand.join(" ") + " (" + bjValue(bjPlayerHand) + ")";
   bjDealer.textContent = "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
 }
 
-function bjIsBlackjack(hand) {
-  return hand.length === 2 && bjValue(hand) === 21;
-}
-
 bjStart.onclick = () => {
   bjBet = parseInt(bjBetInput.value);
+
   if (isNaN(bjBet) || bjBet < 1) {
     bjStatus.textContent = "Invalid bet.";
     return;
@@ -274,17 +268,15 @@ bjStart.onclick = () => {
 
   bjRender();
 
-  // Player blackjack check
   if (bjIsBlackjack(bjPlayerHand)) {
     bjActive = false;
 
-    // Dealer also blackjack?
     if (bjIsBlackjack(bjDealerHand)) {
       bjStatus.textContent = "Both blackjack! Push.";
       coins += bjBet;
     } else {
       bjStatus.textContent = "Blackjack! You win 3:2.";
-      coins += Math.floor(bjBet * 2.5);
+      coins += Math.round(bjBet * 2.5);
     }
 
     localStorage.setItem("coins", coins);
