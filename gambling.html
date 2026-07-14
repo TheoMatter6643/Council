@@ -8,9 +8,9 @@
 <link rel="manifest" href="manifest.json"/>
 
 <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
 </script>
 </head>
 
@@ -25,12 +25,14 @@
 <body>
 
 <h1>Gambling</h1>
-<h3 style="font-size: 60px;">Slot Machine</h3>
 
-<input id="playerName" placeholder="Enter your name" style="font-size: 40px; margin-bottom: 20px;">
+<!-- SLOT MACHINE -->
+<h3 class="section-title">Slot Machine</h3>
 
-<h2 id="coins" style="font-size: 50px;">Coins: 100</h2>
-<h3 id="dailyRewardMessage" style="font-size: 40px;"></h3>
+<input id="playerName" placeholder="Enter your name" class="text-input">
+
+<h2 id="coins" class="coins-display">Coins: 100</h2>
+<h3 id="dailyRewardMessage" class="daily-reward"></h3>
 
 <div id="slot-machine">
   <div class="reel" id="reel1">⭐</div>
@@ -40,40 +42,45 @@
 
 <button id="spin" class="button">Spin</button>
 
-<div id="result" style="font-size: 60px; padding: 2px 4px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);"></div>
+<div id="result" class="result-box"></div>
 
-<!-- <h2 style="font-size: 50px; margin-top: 40px;">Leaderboard</h2>
- <div id="leaderboard" style="font-size: 40px;"></div> -->
+<!-- BLACKJACK -->
+<h3 class="section-title">Blackjack</h3>
 
-<div id="blackjackRules">
+<div id="blackjackRules" class="rules-box">
   <h3>Blackjack Rules</h3>
   <p>- Beat the dealer without going over 21.</p>
   <p>- Blackjack (A + 10-card) pays 3:2.</p>
   <p>- Normal win pays 1:1.</p>
   <p>- Tie returns your bet.</p>
+  <p>- Dealer shows one card until you stand.</p>
 </div>
 
-<div id="blackjack">
-  <input id="bjBet" type="number" min="1" value="10">
-  <button id="bjStart">Start Blackjack</button>
+<div id="blackjack" class="blackjack-container">
 
-  <div id="bjStatus"></div>
-  <div id="bjPlayer"></div>
-  <div id="bjDealer"></div>
+  <input id="bjBet" type="number" min="1" value="10" class="text-input">
 
-  <button id="bjHit">Hit</button>
-  <button id="bjStand">Stand</button>
+  <button id="bjStart" class="button">Start Blackjack</button>
+
+  <div id="bjStatus" class="result-box"></div>
+
+  <div id="bjPlayer" class="result-box"></div>
+  <div id="bjDealer" class="result-box"></div>
+
+  <div class="bj-buttons">
+    <button id="bjHit" class="button">Hit</button>
+    <button id="bjStand" class="button">Stand</button>
+  </div>
+
 </div>
 
+<!-- FOOTER -->
 <footer>
-  <a href="https://m.youtube.com/@TheCouncilofIron" style="width: 100px; height: auto; display: inline-block; padding: 5px;">
-    <img src="Assets/Youtube.png" style="width: 100%; height: 100%; object-fit: contain; padding: 0px; border-radius: 8px; background-color: transparent;">
+  <a href="https://m.youtube.com/@TheCouncilofIron" class="footer-icon">
+    <img src="Assets/Youtube.png" class="footer-img">
   </a>
-  <a href="https://www.tiktok.com/@the.council272?_r=1&_t=ZT-97X7e3E4zPi" id="Money" style="width: 100px; height: auto; display: inline-block; padding: 5px;">
-    <img src="Assets/TikTok.png" style="width: 100%; height: 100%; object-fit: contain; padding: 0px; border-radius: 8px; background-color: transparent;">
+  <a href="https://www.tiktok.com/@the.council272?_r=1&_t=ZT-97X7e3E4zPi" id="Money" class="footer-icon">
+    <img src="Assets/TikTok.png" class="footer-img">
   </a>
 </footer>
 
