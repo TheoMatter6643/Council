@@ -12,9 +12,11 @@ font-size: 100px;
 }
 
 p {
+font-size: 30px;
+}
+h3 {
 font-size: 50px;
 }
-
 h1, h2, h3, h4, h5, p{
   padding: 2px 4px;
   background-color: rgba(255, 255, 255, 0.8);
