@@ -184,149 +184,173 @@ document.addEventListener("DOMContentLoaded", () => {
         updateLeaderboard(jackpots);
       }
     }, 300);
-  };
+  // =========================
+// BLACKJACK (Dealer hole card hidden)
+// =========================
 
-  // BLACKJACK
+const bjBetInput = document.getElementById("bjBet");
+const bjStart = document.getElementById("bjStart");
+const bjHit = document.getElementById("bjHit");
+const bjStand = document.getElementById("bjStand");
 
-  const bjBetInput = document.getElementById("bjBet");
-  const bjStart = document.getElementById("bjStart");
-  const bjHit = document.getElementById("bjHit");
-  const bjStand = document.getElementById("bjStand");
+const bjStatus = document.getElementById("bjStatus");
+const bjPlayer = document.getElementById("bjPlayer");
+const bjDealer = document.getElementById("bjDealer");
 
-  const bjStatus = document.getElementById("bjStatus");
-  const bjPlayer = document.getElementById("bjPlayer");
-  const bjDealer = document.getElementById("bjDealer");
+let bjDeck = [];
+let bjPlayerHand = [];
+let bjDealerHand = [];
+let bjActive = false;
+let bjBet = 0;
+let dealerHoleCard = ""; // hidden card
 
-  let bjDeck = [];
-  let bjPlayerHand = [];
-  let bjDealerHand = [];
-  let bjActive = false;
-  let bjBet = 0;
+function bjNewDeck() {
+  const cards = [];
+  const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  const suits = ["♠","♥","♦","♣"];
+  for (let v of values) {
+    for (let s of suits) cards.push(v + s);
+  }
+  return cards.sort(() => Math.random() - 0.5);
+}
 
-  function bjNewDeck() {
-    const cards = [];
-    const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-    const suits = ["♠","♥","♦","♣"];
-    for (let v of values) {
-      for (let s of suits) cards.push(v + s);
+function bjValue(hand) {
+  let total = 0;
+  let aces = 0;
+
+  for (let c of hand) {
+    const v = c.slice(0, -1);
+    if (v === "A") {
+      total += 11;
+      aces++;
+    } else if (["J","Q","K"].includes(v)) {
+      total += 10;
+    } else {
+      total += parseInt(v, 10);
     }
-    return cards.sort(() => Math.random() - 0.5);
   }
 
-  function bjValue(hand) {
-    let total = 0;
-    let aces = 0;
-
-    for (let c of hand) {
-      const v = c.slice(0, -1);
-      if (v === "A") {
-        total += 11;
-        aces++;
-      } else if (["J","Q","K"].includes(v)) {
-        total += 10;
-      } else {
-        total += parseInt(v, 10);
-      }
-    }
-
-    while (total > 21 && aces > 0) {
-      total -= 10;
-      aces--;
-    }
-
-    return total;
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
   }
 
-  function bjIsBlackjack(hand) {
-    return hand.length === 2 && bjValue(hand) === 21;
+  return total;
+}
+
+function bjIsBlackjack(hand) {
+  return hand.length === 2 && bjValue(hand) === 21;
+}
+
+function bjRender(showDealerHole = false) {
+  // Player always fully shown
+  bjPlayer.textContent =
+    "Player: " + bjPlayerHand.join(" ") + " (" + bjValue(bjPlayerHand) + ")";
+
+  // Dealer: hide hole card until stand
+  if (!showDealerHole) {
+    bjDealer.textContent =
+      "Dealer: " + bjDealerHand[0] + " [HIDDEN]";
+  } else {
+    bjDealer.textContent =
+      "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
+  }
+}
+
+bjStart.onclick = () => {
+  bjBet = Number(bjBetInput.value.trim());
+
+  if (!Number.isFinite(bjBet) || bjBet < 1) {
+    bjStatus.textContent = "Invalid bet.";
+    return;
   }
 
-  function bjRender() {
-    bjPlayer.textContent = "Player: " + bjPlayerHand.join(" ") + " (" + bjValue(bjPlayerHand) + ")";
-    bjDealer.textContent = "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
+  if (coins < bjBet) {
+    bjStatus.textContent = "Not enough coins.";
+    return;
   }
 
-  bjStart.onclick = () => {
-    bjBet = Number(bjBetInput.value.trim());
+  coins -= bjBet;
+  localStorage.setItem("coins", coins);
+  document.getElementById("coins").textContent = "Coins: " + coins;
 
-    if (!Number.isFinite(bjBet) || bjBet < 1) {
-      bjStatus.textContent = "Invalid bet.";
-      return;
-    }
+  bjActive = true;
+  bjStatus.textContent = "Blackjack started!";
+  bjDeck = bjNewDeck();
 
-    if (coins < bjBet) {
-      bjStatus.textContent = "Not enough coins.";
-      return;
-    }
+  bjPlayerHand = [bjDeck.pop(), bjDeck.pop()];
+  bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
+  dealerHoleCard = bjDealerHand[1];
 
-    coins -= bjBet;
-    localStorage.setItem("coins", coins);
-    coinsEl.textContent = "Coins: " + coins;
+  // Render with hole card hidden
+  bjRender(false);
 
-    bjActive = true;
-    bjStatus.textContent = "Blackjack started!";
-    bjDeck = bjNewDeck();
-    bjPlayerHand = [bjDeck.pop(), bjDeck.pop()];
-    bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
+  // Player blackjack check
+  if (bjIsBlackjack(bjPlayerHand)) {
+    bjActive = false;
 
-    bjRender();
-
-    if (bjIsBlackjack(bjPlayerHand)) {
-      bjActive = false;
-
-      if (bjIsBlackjack(bjDealerHand)) {
-        bjStatus.textContent = "Both blackjack! Push.";
-        coins += bjBet;
-      } else {
-        bjStatus.textContent = "Blackjack! You win 3:2.";
-        coins += Math.round(bjBet * 2.5);
-      }
-
-      localStorage.setItem("coins", coins);
-      coinsEl.textContent = "Coins: " + coins;
-    }
-  };
-
-  bjHit.onclick = () => {
-    if (!bjActive) return;
-
-    bjPlayerHand.push(bjDeck.pop());
-    bjRender();
-
-    if (bjValue(bjPlayerHand) > 21) {
-      bjStatus.textContent = "Bust! You lose.";
-      bjActive = false;
-    }
-  };
-
-  bjStand.onclick = () => {
-    if (!bjActive) return;
-
-    while (bjValue(bjDealerHand) < 17) {
-      bjDealerHand.push(bjDeck.pop());
-    }
-
-    bjRender();
-
-    const p = bjValue(bjPlayerHand);
-    const d = bjValue(bjDealerHand);
-
-    if (d > 21) {
-      bjStatus.textContent = "Dealer busts! You win.";
-      coins += bjBet * 2;
-    } else if (p > d) {
-      bjStatus.textContent = "You win!";
-      coins += bjBet * 2;
-    } else if (p === d) {
-      bjStatus.textContent = "Push. Bet refunded.";
+    if (bjIsBlackjack(bjDealerHand)) {
+      bjStatus.textContent = "Both blackjack! Push.";
       coins += bjBet;
     } else {
-      bjStatus.textContent = "Dealer wins.";
+      bjStatus.textContent = "Blackjack! You win 3:2.";
+      coins += Math.round(bjBet * 2.5);
     }
 
     localStorage.setItem("coins", coins);
-    coinsEl.textContent = "Coins: " + coins;
+    document.getElementById("coins").textContent = "Coins: " + coins;
 
+    // Reveal dealer cards after result
+    bjRender(true);
+  }
+};
+
+bjHit.onclick = () => {
+  if (!bjActive) return;
+
+  bjPlayerHand.push(bjDeck.pop());
+  bjRender(false);
+
+  if (bjValue(bjPlayerHand) > 21) {
+    bjStatus.textContent = "Bust! You lose.";
     bjActive = false;
-  };
+
+    // Reveal dealer cards
+    bjRender(true);
+  }
+};
+
+bjStand.onclick = () => {
+  if (!bjActive) return;
+
+  // Reveal dealer hole card
+  bjRender(true);
+
+  while (bjValue(bjDealerHand) < 17) {
+    bjDealerHand.push(bjDeck.pop());
+  }
+
+  bjRender(true);
+
+  const p = bjValue(bjPlayerHand);
+  const d = bjValue(bjDealerHand);
+
+  if (d > 21) {
+    bjStatus.textContent = "Dealer busts! You win.";
+    coins += bjBet * 2;
+  } else if (p > d) {
+    bjStatus.textContent = "You win!";
+    coins += bjBet * 2;
+  } else if (p === d) {
+    bjStatus.textContent = "Push. Bet refunded.";
+    coins += bjBet;
+  } else {
+    bjStatus.textContent = "Dealer wins.";
+  }
+
+  localStorage.setItem("coins", coins);
+  document.getElementById("coins").textContent = "Coins: " + coins;
+
+  bjActive = false;
+};
 });
