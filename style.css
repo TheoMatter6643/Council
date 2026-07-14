@@ -15,7 +15,7 @@ p {
 font-size: 30px;
 }
 h3 {
-font-size: 50px;
+font-size: 75px;
 }
 h1, h2, h3, h4, h5, p{
   padding: 2px 4px;
@@ -58,4 +58,12 @@ font-size: 80px;
 
 .spin-animation {
   transform: rotateX(360deg);
+}
+
+.result {
+font-size: 50px;
+padding: 2px 4px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
 }
