@@ -48,11 +48,22 @@
 <!-- <h2 style="font-size: 50px; margin-top: 40px;">Leaderboard</h2>
  <div id="leaderboard" style="font-size: 40px;"></div> -->
 
+<div id="blackjackRules">
+  <h3>Blackjack Rules</h3>
+  <p>- Beat the dealer without going over 21.</p>
+  <p>- Blackjack (A + 10-card) pays 3:2.</p>
+  <p>- Normal win pays 1:1.</p>
+  <p>- Tie returns your bet.</p>
+</div>
+
 <div id="blackjack">
-  <button id="bjStart">Start Blackjack (-10 coins)</button>
+  <input id="bjBet" type="number" min="1" value="10">
+  <button id="bjStart">Start Blackjack</button>
+
   <div id="bjStatus"></div>
   <div id="bjPlayer"></div>
   <div id="bjDealer"></div>
+
   <button id="bjHit">Hit</button>
   <button id="bjStand">Stand</button>
 </div>
