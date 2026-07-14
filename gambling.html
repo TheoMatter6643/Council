@@ -26,7 +26,6 @@
 
 <h1>Gambling</h1>
 
-<!-- SLOT MACHINE -->
 <h3 class="section-title">Slot Machine</h3>
 
 <input id="playerName" placeholder="Enter your name" class="text-input">
@@ -40,17 +39,16 @@
   <div class="reel" id="reel3">⭐</div>
 </div>
 
-<button id="spin" class="button">Spin</button>
+<a id="spin" class="button">Spin</a>
 
-<div id="result" class="result-box"></div>
+<div id="result" class="result"></div>
 
-<!-- BLACKJACK -->
 <h3 class="section-title">Blackjack</h3>
 
 <div id="blackjackRules" class="rules-box">
   <h3>Blackjack Rules</h3>
   <p>- Beat the dealer without going over 21.</p>
-  <p>- Blackjack (A + 10-card) pays 3:2.</p>
+  <p>- Blackjack pays 3:2.</p>
   <p>- Normal win pays 1:1.</p>
   <p>- Tie returns your bet.</p>
   <p>- Dealer shows one card until you stand.</p>
@@ -60,21 +58,19 @@
 
   <input id="bjBet" type="number" min="1" value="10" class="text-input">
 
-  <button id="bjStart" class="button">Start Blackjack</button>
+  <a id="bjStart" class="button">Start Blackjack</a>
 
-  <div id="bjStatus" class="result-box"></div>
-
-  <div id="bjPlayer" class="result-box"></div>
-  <div id="bjDealer" class="result-box"></div>
+  <div id="bjStatus" class="result"></div>
+  <div id="bjPlayer" class="result"></div>
+  <div id="bjDealer" class="result"></div>
 
   <div class="bj-buttons">
-    <button id="bjHit" class="button">Hit</button>
-    <button id="bjStand" class="button">Stand</button>
+    <a id="bjHit" class="button">Hit</a>
+    <a id="bjStand" class="button">Stand</a>
   </div>
 
 </div>
 
-<!-- FOOTER -->
 <footer>
   <a href="https://m.youtube.com/@TheCouncilofIron" class="footer-icon">
     <img src="Assets/Youtube.png" class="footer-img">
