@@ -185,147 +185,148 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }, 300);
   };
-});
-// BLACKJACK
 
-const bjBetInput = document.getElementById("bjBet");
-const bjStart = document.getElementById("bjStart");
-const bjHit = document.getElementById("bjHit");
-const bjStand = document.getElementById("bjStand");
+  // BLACKJACK
 
-const bjStatus = document.getElementById("bjStatus");
-const bjPlayer = document.getElementById("bjPlayer");
-const bjDealer = document.getElementById("bjDealer");
+  const bjBetInput = document.getElementById("bjBet");
+  const bjStart = document.getElementById("bjStart");
+  const bjHit = document.getElementById("bjHit");
+  const bjStand = document.getElementById("bjStand");
 
-let bjDeck = [];
-let bjPlayerHand = [];
-let bjDealerHand = [];
-let bjActive = false;
-let bjBet = 0;
+  const bjStatus = document.getElementById("bjStatus");
+  const bjPlayer = document.getElementById("bjPlayer");
+  const bjDealer = document.getElementById("bjDealer");
 
-function bjNewDeck() {
-  const cards = [];
-  const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-  const suits = ["♠","♥","♦","♣"];
-  for (let v of values) {
-    for (let s of suits) cards.push(v + s);
-  }
-  return cards.sort(() => Math.random() - 0.5);
-}
+  let bjDeck = [];
+  let bjPlayerHand = [];
+  let bjDealerHand = [];
+  let bjActive = false;
+  let bjBet = 0;
 
-function bjValue(hand) {
-  let total = 0;
-  let aces = 0;
-
-  for (let c of hand) {
-    const v = c.slice(0, -1);
-    if (v === "A") {
-      total += 11;
-      aces++;
-    } else if (["J","Q","K"].includes(v)) {
-      total += 10;
-    } else {
-      total += parseInt(v, 10);
+  function bjNewDeck() {
+    const cards = [];
+    const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+    const suits = ["♠","♥","♦","♣"];
+    for (let v of values) {
+      for (let s of suits) cards.push(v + s);
     }
+    return cards.sort(() => Math.random() - 0.5);
   }
 
-  while (total > 21 && aces > 0) {
-    total -= 10;
-    aces--;
+  function bjValue(hand) {
+    let total = 0;
+    let aces = 0;
+
+    for (let c of hand) {
+      const v = c.slice(0, -1);
+      if (v === "A") {
+        total += 11;
+        aces++;
+      } else if (["J","Q","K"].includes(v)) {
+        total += 10;
+      } else {
+        total += parseInt(v, 10);
+      }
+    }
+
+    while (total > 21 && aces > 0) {
+      total -= 10;
+      aces--;
+    }
+
+    return total;
   }
 
-  return total;
-}
-
-function bjIsBlackjack(hand) {
-  return hand.length === 2 && bjValue(hand) === 21;
-}
-
-function bjRender() {
-  bjPlayer.textContent = "Player: " + bjPlayerHand.join(" ") + " (" + bjValue(bjPlayerHand) + ")";
-  bjDealer.textContent = "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
-}
-
-bjStart.onclick = () => {
-  bjBet = Number(bjBetInput.value.trim());
-
-  if (!Number.isFinite(bjBet) || bjBet < 1) {
-    bjStatus.textContent = "Invalid bet.";
-    return;
+  function bjIsBlackjack(hand) {
+    return hand.length === 2 && bjValue(hand) === 21;
   }
 
-  if (coins < bjBet) {
-    bjStatus.textContent = "Not enough coins.";
-    return;
+  function bjRender() {
+    bjPlayer.textContent = "Player: " + bjPlayerHand.join(" ") + " (" + bjValue(bjPlayerHand) + ")";
+    bjDealer.textContent = "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
   }
 
-  coins -= bjBet;
-  localStorage.setItem("coins", coins);
-  document.getElementById("coins").textContent = "Coins: " + coins;
+  bjStart.onclick = () => {
+    bjBet = Number(bjBetInput.value.trim());
 
-  bjActive = true;
-  bjStatus.textContent = "Blackjack started!";
-  bjDeck = bjNewDeck();
-  bjPlayerHand = [bjDeck.pop(), bjDeck.pop()];
-  bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
+    if (!Number.isFinite(bjBet) || bjBet < 1) {
+      bjStatus.textContent = "Invalid bet.";
+      return;
+    }
 
-  bjRender();
+    if (coins < bjBet) {
+      bjStatus.textContent = "Not enough coins.";
+      return;
+    }
 
-  if (bjIsBlackjack(bjPlayerHand)) {
-    bjActive = false;
+    coins -= bjBet;
+    localStorage.setItem("coins", coins);
+    coinsEl.textContent = "Coins: " + coins;
 
-    if (bjIsBlackjack(bjDealerHand)) {
-      bjStatus.textContent = "Both blackjack! Push.";
+    bjActive = true;
+    bjStatus.textContent = "Blackjack started!";
+    bjDeck = bjNewDeck();
+    bjPlayerHand = [bjDeck.pop(), bjDeck.pop()];
+    bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
+
+    bjRender();
+
+    if (bjIsBlackjack(bjPlayerHand)) {
+      bjActive = false;
+
+      if (bjIsBlackjack(bjDealerHand)) {
+        bjStatus.textContent = "Both blackjack! Push.";
+        coins += bjBet;
+      } else {
+        bjStatus.textContent = "Blackjack! You win 3:2.";
+        coins += Math.round(bjBet * 2.5);
+      }
+
+      localStorage.setItem("coins", coins);
+      coinsEl.textContent = "Coins: " + coins;
+    }
+  };
+
+  bjHit.onclick = () => {
+    if (!bjActive) return;
+
+    bjPlayerHand.push(bjDeck.pop());
+    bjRender();
+
+    if (bjValue(bjPlayerHand) > 21) {
+      bjStatus.textContent = "Bust! You lose.";
+      bjActive = false;
+    }
+  };
+
+  bjStand.onclick = () => {
+    if (!bjActive) return;
+
+    while (bjValue(bjDealerHand) < 17) {
+      bjDealerHand.push(bjDeck.pop());
+    }
+
+    bjRender();
+
+    const p = bjValue(bjPlayerHand);
+    const d = bjValue(bjDealerHand);
+
+    if (d > 21) {
+      bjStatus.textContent = "Dealer busts! You win.";
+      coins += bjBet * 2;
+    } else if (p > d) {
+      bjStatus.textContent = "You win!";
+      coins += bjBet * 2;
+    } else if (p === d) {
+      bjStatus.textContent = "Push. Bet refunded.";
       coins += bjBet;
     } else {
-      bjStatus.textContent = "Blackjack! You win 3:2.";
-      coins += Math.round(bjBet * 2.5);
+      bjStatus.textContent = "Dealer wins.";
     }
 
     localStorage.setItem("coins", coins);
-    document.getElementById("coins").textContent = "Coins: " + coins;
-  }
-};
+    coinsEl.textContent = "Coins: " + coins;
 
-bjHit.onclick = () => {
-  if (!bjActive) return;
-
-  bjPlayerHand.push(bjDeck.pop());
-  bjRender();
-
-  if (bjValue(bjPlayerHand) > 21) {
-    bjStatus.textContent = "Bust! You lose.";
     bjActive = false;
-  }
-};
-
-bjStand.onclick = () => {
-  if (!bjActive) return;
-
-  while (bjValue(bjDealerHand) < 17) {
-    bjDealerHand.push(bjDeck.pop());
-  }
-
-  bjRender();
-
-  const p = bjValue(bjPlayerHand);
-  const d = bjValue(bjDealerHand);
-
-  if (d > 21) {
-    bjStatus.textContent = "Dealer busts! You win.";
-    coins += bjBet * 2;
-  } else if (p > d) {
-    bjStatus.textContent = "You win!";
-    coins += bjBet * 2;
-  } else if (p === d) {
-    bjStatus.textContent = "Push. Bet refunded.";
-    coins += bjBet;
-  } else {
-    bjStatus.textContent = "Dealer wins.";
-  }
-
-  localStorage.setItem("coins", coins);
-  document.getElementById("coins").textContent = "Coins: " + coins;
-
-  bjActive = false;
-};
+  };
+});
