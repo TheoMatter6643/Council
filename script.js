@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const DAILY_REWARD = 200;
+  const DAILY_REWARD = 400;
   const COST_PER_SPIN = 10;
 
   const BIN_ID = "6a46bcb9f5f4af5e2955efa1";
@@ -186,3 +186,119 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   };
 });
+// =========================
+// BLACKJACK
+// =========================
+
+const bjStart = document.getElementById("bjStart");
+const bjHit = document.getElementById("bjHit");
+const bjStand = document.getElementById("bjStand");
+
+const bjStatus = document.getElementById("bjStatus");
+const bjPlayer = document.getElementById("bjPlayer");
+const bjDealer = document.getElementById("bjDealer");
+
+let bjDeck = [];
+let bjPlayerHand = [];
+let bjDealerHand = [];
+let bjActive = false;
+
+function bjNewDeck() {
+  const cards = [];
+  const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  const suits = ["♠","♥","♦","♣"];
+  for (let v of values) {
+    for (let s of suits) {
+      cards.push(v + s);
+    }
+  }
+  return cards.sort(() => Math.random() - 0.5);
+}
+
+function bjValue(hand) {
+  let total = 0;
+  let aces = 0;
+
+  for (let c of hand) {
+    let v = c.slice(0, -1);
+    if (v === "A") {
+      total += 11;
+      aces++;
+    } else if (["J","Q","K"].includes(v)) {
+      total += 10;
+    } else {
+      total += parseInt(v);
+    }
+  }
+
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+
+  return total;
+}
+
+function bjRender() {
+  bjPlayer.textContent = "Player: " + bjPlayerHand.join(" ") + " (" + bjValue(bjPlayerHand) + ")";
+  bjDealer.textContent = "Dealer: " + bjDealerHand.join(" ") + " (" + bjValue(bjDealerHand) + ")";
+}
+
+bjStart.onclick = () => {
+  if (coins < 10) {
+    bjStatus.textContent = "Not enough coins.";
+    return;
+  }
+
+  coins -= 10;
+  localStorage.setItem("coins", coins);
+  document.getElementById("coins").textContent = "Coins: " + coins;
+
+  bjActive = true;
+  bjStatus.textContent = "Blackjack started!";
+  bjDeck = bjNewDeck();
+  bjPlayerHand = [bjDeck.pop(), bjDeck.pop()];
+  bjDealerHand = [bjDeck.pop(), bjDeck.pop()];
+
+  bjRender();
+};
+
+bjHit.onclick = () => {
+  if (!bjActive) return;
+
+  bjPlayerHand.push(bjDeck.pop());
+  bjRender();
+
+  if (bjValue(bjPlayerHand) > 21) {
+    bjStatus.textContent = "Bust! You lose.";
+    bjActive = false;
+  }
+};
+
+bjStand.onclick = () => {
+  if (!bjActive) return;
+
+  while (bjValue(bjDealerHand) < 17) {
+    bjDealerHand.push(bjDeck.pop());
+  }
+
+  bjRender();
+
+  const p = bjValue(bjPlayerHand);
+  const d = bjValue(bjDealerHand);
+
+  if (d > 21 || p > d) {
+    bjStatus.textContent = "You win +20 coins!";
+    coins += 20;
+  } else if (p === d) {
+    bjStatus.textContent = "Push. +10 coins refunded.";
+    coins += 10;
+  } else {
+    bjStatus.textContent = "Dealer wins.";
+  }
+
+  localStorage.setItem("coins", coins);
+  document.getElementById("coins").textContent = "Coins: " + coins;
+
+  bjActive = false;
+};
