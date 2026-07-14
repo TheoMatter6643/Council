@@ -186,9 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   };
 });
-// =========================
-// BLACKJACK (FIXED)
-// =========================
+// BLACKJACK
 
 const bjBetInput = document.getElementById("bjBet");
 const bjStart = document.getElementById("bjStart");
@@ -220,10 +218,15 @@ function bjValue(hand) {
   let aces = 0;
 
   for (let c of hand) {
-    let v = c.slice(0, -1);
-    if (v === "A") { total += 11; aces++; }
-    else if (["J","Q","K"].includes(v)) total += 10;
-    else total += parseInt(v);
+    const v = c.slice(0, -1);
+    if (v === "A") {
+      total += 11;
+      aces++;
+    } else if (["J","Q","K"].includes(v)) {
+      total += 10;
+    } else {
+      total += parseInt(v, 10);
+    }
   }
 
   while (total > 21 && aces > 0) {
@@ -244,9 +247,9 @@ function bjRender() {
 }
 
 bjStart.onclick = () => {
-  bjBet = parseInt(bjBetInput.value);
+  bjBet = Number(bjBetInput.value.trim());
 
-  if (isNaN(bjBet) || bjBet < 1) {
+  if (!Number.isFinite(bjBet) || bjBet < 1) {
     bjStatus.textContent = "Invalid bet.";
     return;
   }
